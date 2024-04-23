@@ -3,3 +3,6 @@ __pycache__
 
 # Development container
 .devcontainer
+
+# VSCode configuration
+.vscode
