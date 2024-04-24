@@ -2,10 +2,14 @@ from urllib.error import HTTPError
 
 import pandas as pd
 from django.core.management.base import BaseCommand
+from django.db import connection
 
-from matches.constants import MATCHES_DATA_URL, MatchFields
+from matches.constants import MATCHES_DATA_URL, MatchFields, MatchFieldsTypes
 from matches.exceptions import DownloadError, FieldsNotFound
+from matches.models import Match
 from utils import extract_keys_from_key_error
+
+pd.set_option("future.no_silent_downcasting", True)
 
 
 class Command(BaseCommand):
@@ -28,7 +32,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO("Dropping NaN values..."))
         self.__drop_nan_values()
 
-        return
+        self.stdout.write(self.style.HTTP_INFO("Inserting matches in database..."))
+        self.__insert_matches_in_db()
 
     def __download_matches_data(self) -> None:
         """
@@ -58,20 +63,20 @@ class Command(BaseCommand):
         try:
             self.matches_df = self.matches_df[
                 [
-                    MatchFields.DATE.value,
-                    MatchFields.LEAGUE.value,
-                    MatchFields.SEASON.value,
-                    MatchFields.TEAM1.value,
-                    MatchFields.TEAM2.value,
-                    MatchFields.SPI1.value,
-                    MatchFields.SPI2.value,
-                    MatchFields.PROB1.value,
-                    MatchFields.PROB2.value,
-                    MatchFields.PROBTIE.value,
-                    MatchFields.PROJSCORE1.value,
-                    MatchFields.PROJSCORE2.value,
-                    MatchFields.SCORE1.value,
-                    MatchFields.SCORE2.value,
+                    MatchFields.date.value,
+                    MatchFields.league.value,
+                    MatchFields.season.value,
+                    MatchFields.team1.value,
+                    MatchFields.team2.value,
+                    MatchFields.spi1.value,
+                    MatchFields.spi2.value,
+                    MatchFields.prob1.value,
+                    MatchFields.prob2.value,
+                    MatchFields.probtie.value,
+                    MatchFields.proj_score1.value,
+                    MatchFields.proj_score2.value,
+                    MatchFields.score1.value,
+                    MatchFields.score2.value,
                 ]
             ]
         except KeyError as e:
@@ -91,8 +96,8 @@ class Command(BaseCommand):
 
         try:
             self.matches_df = self.matches_df[
-                (self.matches_df[MatchFields.SCORE1.value].notnull())
-                & (self.matches_df[MatchFields.SCORE2.value].notnull())
+                (self.matches_df[MatchFields.score1.value].notnull())
+                & (self.matches_df[MatchFields.score2.value].notnull())
             ]
         except KeyError as e:
             raise FieldsNotFound(f"Field {e} not found in matches data")
@@ -103,3 +108,30 @@ class Command(BaseCommand):
         """
 
         self.matches_df = self.matches_df.dropna().reset_index(drop=True)
+
+    def __insert_matches_in_db(self) -> None:
+        """
+        Insert matches in database
+        """
+
+        Match.objects.all().delete()
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM sqlite_sequence WHERE name='" + Match._meta.db_table + "';"
+            )
+
+        for column in self.matches_df.columns.to_list():
+            self.matches_df[column] = self.matches_df[column].astype(
+                MatchFieldsTypes[column].value
+            )
+
+        matches_to_insert = [
+            Match(**match) for match in self.matches_df.to_dict(orient="records")
+        ]
+
+        Match.objects.bulk_create(matches_to_insert)
+
+        self.stdout.write(
+            self.style.SUCCESS("Finished populating matches in database!")
+        )
