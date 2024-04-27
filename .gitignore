@@ -3,3 +3,12 @@ __pycache__
 
 # Development container
 .devcontainer
+
+# VSCode configuration
+.vscode
+
+# Development database
+db.sqlite3
+
+# Pytest cache
+.pytest_cache
