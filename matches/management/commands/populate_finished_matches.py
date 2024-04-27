@@ -4,7 +4,7 @@ import pandas as pd
 from django.core.management.base import BaseCommand
 from django.db import connection
 
-from matches.constants import MATCHES_DATA_URL, MatchFields, MatchFieldsTypes
+from matches.constants import MATCH_DATA_URL, MatchFields, MatchFieldTypes
 from matches.exceptions import DownloadError, FieldsNotFound
 from matches.models import Match
 from utils import extract_keys_from_key_error
@@ -21,10 +21,10 @@ class Command(BaseCommand):
         """
 
         self.stdout.write(self.style.HTTP_INFO("Downloading match data..."))
-        self._download_matches_data()
+        self._download_match_data()
 
         self.stdout.write(self.style.HTTP_INFO("Extracting match columns..."))
-        self._extract_matches_columns()
+        self._extract_match_columns()
 
         self.stdout.write(self.style.HTTP_INFO("Filtering finished matches..."))
         self._filter_finished_matches()
@@ -41,33 +41,33 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO("Inserting matches in database..."))
         self._insert_matches_in_db()
 
-    def _download_matches_data(self) -> None:
+    def _download_match_data(self) -> None:
         """
-        Download matches data
+        Download match data
 
         Raises
         ------
         DownloadError
-            If an error occurs downloading matches data
+            If an error occurs downloading match data
         """
 
         try:
-            self.matches_df = pd.read_csv(MATCHES_DATA_URL)
+            self._match_df = pd.read_csv(MATCH_DATA_URL)
         except HTTPError:
-            raise DownloadError("Error downloading matches data")
+            raise DownloadError("Error downloading match data")
 
-    def _extract_matches_columns(self) -> None:
+    def _extract_match_columns(self) -> None:
         """
-        Extract columns from matches data
+        Extract columns from match data
 
         Raises
         ------
         FieldsNotFound
-            If one or multiple fields are not found in the matches data
+            If one or multiple fields are not found in the match data
         """
 
         try:
-            self.matches_df = self.matches_df[
+            self._match_df = self._match_df[
                 [
                     MatchFields.date.value,
                     MatchFields.league.value,
@@ -87,22 +87,17 @@ class Command(BaseCommand):
             ]
         except KeyError as e:
             raise FieldsNotFound(
-                f"Fields {extract_keys_from_key_error(e)} not found in matches data"
+                f"Fields {extract_keys_from_key_error(e)} not found in match data"
             )
 
     def _filter_finished_matches(self) -> None:
         """
         Filter finished matches
-
-        Raises
-        ------
-        FieldsNotFound
-            If one or multiple fields are not found in the matches data
         """
 
-        self.matches_df = self.matches_df[
-            (self.matches_df[MatchFields.score1.value].notnull())
-            & (self.matches_df[MatchFields.score2.value].notnull())
+        self._match_df = self._match_df[
+            (self._match_df[MatchFields.score1.value].notnull())
+            & (self._match_df[MatchFields.score2.value].notnull())
         ]
 
     def _drop_nan_values(self) -> None:
@@ -110,27 +105,27 @@ class Command(BaseCommand):
         Drop NaN values
         """
 
-        self.matches_df = self.matches_df.dropna().reset_index(drop=True)
+        self._match_df = self._match_df.dropna().reset_index(drop=True)
 
     def _set_match_column_types(self) -> None:
         """
-        Set matches df column types
+        Set match column types
         """
 
-        match_fields_types = dict(MatchFieldsTypes.__members__.items())
+        match_field_types = dict(MatchFieldTypes.__members__.items())
 
-        for column in self.matches_df.columns.to_list():
-            self.matches_df[column] = self.matches_df[column].astype(
-                match_fields_types[column].value
+        for column in self._match_df.columns.to_list():
+            self._match_df[column] = self._match_df[column].astype(
+                match_field_types[column].value
             )
 
     def _generate_match_instances(self) -> None:
         """
-        Generate matches instances
+        Generate match instances
         """
 
-        self._matches_instances = [
-            Match(**match) for match in self.matches_df.to_dict(orient="records")
+        self._match_instances = [
+            Match(**match) for match in self._match_df.to_dict(orient="records")
         ]
 
     def _insert_matches_in_db(self) -> None:
@@ -139,17 +134,17 @@ class Command(BaseCommand):
         """
 
         Match.objects.all().delete()
-        self._reset_matches_table_sequence()
+        self._reset_sequence_of_table_matches()
 
-        Match.objects.bulk_create(self._matches_instances)
+        Match.objects.bulk_create(self._match_instances)
 
         self.stdout.write(
             self.style.SUCCESS("Finished populating matches in database!")
         )
 
-    def _reset_matches_table_sequence(self) -> None:
+    def _reset_sequence_of_table_matches(self) -> None:
         """
-        Reset matches table sequence
+        Reset the sequence of the table matches
         """
 
         with connection.cursor() as cursor:

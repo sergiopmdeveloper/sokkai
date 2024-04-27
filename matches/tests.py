@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import pandas as pd
 import pytest
 
-from matches.constants import MatchFields, MatchFieldsTypes
+from matches.constants import MatchFields, MatchFieldTypes
 from matches.exceptions import DownloadError, FieldsNotFound
 from matches.management.commands import populate_finished_matches
 from matches.models import Match
@@ -26,14 +26,14 @@ def command_instance() -> populate_finished_matches.Command:
 
 
 @pytest.fixture
-def matches_df() -> pd.DataFrame:
+def match_df() -> pd.DataFrame:
     """
-    Fixture to return a DataFrame with matches data
+    Fixture to return a DataFrame with match data
 
     Returns
     -------
     pd.DataFrame
-        A DataFrame with matches data
+        A DataFrame with match data
     """
 
     return pd.DataFrame(
@@ -65,23 +65,23 @@ def matches_df() -> pd.DataFrame:
     )
 
 
-def test_match_fields_and_match_fields_types_are_equal() -> None:
+def test_match_fields_and_match_field_types_are_equal() -> None:
     """
     Test that the MatchFields and
-    MatchFieldsTypes enums have the same fields
+    MatchFieldTypes enums have the same fields
     """
 
     assert set(MatchFields.__members__.keys()) == set(
-        MatchFieldsTypes.__members__.keys()
+        MatchFieldTypes.__members__.keys()
     )
 
 
-def test_download_matches_data_read_csv_matches_data_url(
+def test_download_match_data_read_csv_match_data_url(
     command_instance: populate_finished_matches.Command,
 ) -> None:
     """
-    Test that the _download_matches_data method calls
-    the pd.read_csv function with the MATCHES_DATA_URL
+    Test that the _download_match_data method calls
+    the pd.read_csv function with the match data URL
 
     Parameters
     ----------
@@ -90,18 +90,18 @@ def test_download_matches_data_read_csv_matches_data_url(
     """
 
     with patch("pandas.read_csv") as mock_read_csv:
-        command_instance._download_matches_data()
+        command_instance._download_match_data()
 
         mock_read_csv.assert_called_with(
             "https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv"
         )
 
 
-def test_download_matches_data_raises_download_error(
+def test_download_match_data_raises_download_error(
     command_instance: populate_finished_matches.Command,
 ) -> None:
     """
-    Test that the _download_matches_data method raises
+    Test that the _download_match_data method raises
     a DownloadError if an HTTPError is raised
 
     Parameters
@@ -114,32 +114,31 @@ def test_download_matches_data_raises_download_error(
         mock_read_csv.side_effect = HTTPError("", "", "", "", "")
 
         with pytest.raises(DownloadError) as exc_info:
-            command_instance._download_matches_data()
+            command_instance._download_match_data()
 
-        assert str(exc_info.value) == "Error downloading matches data"
+        assert str(exc_info.value) == "Error downloading match data"
 
 
-def test_extract_matches_columns_selects_correct_columns(
+def test_extract_match_columns_selects_correct_columns(
     command_instance: populate_finished_matches.Command,
-    matches_df: pd.DataFrame,
+    match_df: pd.DataFrame,
 ) -> None:
     """
-    Test that the _extract_matches_columns method selects
-    the correct columns from the matches data
+    Test that the _extract_match_columns method selects
+    the correct columns from the match data
 
     Parameters
     ----------
     command_instance : populate_finished_matches.Command
         Command instance fixture
-    matches_df : pd.DataFrame
-        Matches df fixture
+    match_df : pd.DataFrame
+        Match df fixture
     """
 
-    command_instance.matches_df = matches_df
+    command_instance._match_df = match_df
+    command_instance._extract_match_columns()
 
-    command_instance._extract_matches_columns()
-
-    assert list(command_instance.matches_df.columns) == [
+    assert list(command_instance._match_df.columns) == [
         "date",
         "league",
         "season",
@@ -157,122 +156,101 @@ def test_extract_matches_columns_selects_correct_columns(
     ]
 
 
-def test_extract_matches_columns_raises_fields_not_found(
+def test_extract_match_columns_raises_fields_not_found(
     command_instance: populate_finished_matches.Command,
-    matches_df: pd.DataFrame,
+    match_df: pd.DataFrame,
 ) -> None:
     """
-    Test that the _extract_matches_columns method raises
+    Test that the _extract_match_columns method raises
     a FieldsNotFound exception if a KeyError is raised
 
     Parameters
     ----------
     command_instance : populate_finished_matches.Command
         Command instance fixture
-    matches_df : pd.DataFrame
-        Matches df fixture
+    match_df : pd.DataFrame
+        Match df fixture
     """
 
-    matches_df = matches_df.drop(
+    match_df = match_df.drop(
         columns=["date", "league", "season", "team1", "team2", "spi1", "spi2"]
     )
 
-    command_instance.matches_df = matches_df
+    command_instance._match_df = match_df
 
     with pytest.raises(FieldsNotFound) as exc_info:
-        command_instance._extract_matches_columns()
+        command_instance._extract_match_columns()
 
     assert (
         str(exc_info.value)
-        == "Fields ['date', 'league', 'season', 'team1', 'team2', 'spi1', 'spi2'] not found in matches data"
+        == "Fields ['date', 'league', 'season', 'team1', 'team2', 'spi1', 'spi2'] not found in match data"
     )
 
 
 def test_filter_finished_matches_selects_matches_with_scores(
     command_instance: populate_finished_matches.Command,
-    matches_df: pd.DataFrame,
+    match_df: pd.DataFrame,
 ) -> None:
     """
     Test that the _filter_finished_matches method filters
-    the matches data to only include matches with scores
+    the match data to only include matches with scores
 
     Parameters
     ----------
     command_instance : populate_finished_matches.Command,
         Command instance fixture
-    matches_df : pd.DataFrame
-        Matches df fixture
+    match_df : pd.DataFrame
+        Match df fixture
     """
 
-    matches_df.loc[0, "score1"] = None
-    matches_df.loc[1, "score2"] = None
+    match_df.loc[0, "score1"] = None
+    match_df.loc[1, "score2"] = None
 
-    command_instance.matches_df = matches_df
+    command_instance._match_df = match_df
     command_instance._filter_finished_matches()
 
-    assert command_instance.matches_df.shape[0] == 1
+    assert command_instance._match_df.shape[0] == 1
 
 
 def test_drop_nan_values_drops_nan_values(
     command_instance: populate_finished_matches.Command,
-    matches_df: pd.DataFrame,
+    match_df: pd.DataFrame,
 ) -> None:
     """
-    Test that the _drop_nan_values method drops NaN values
-    from the matches data
+    Test that the _drop_nan_values method
+    drops NaN values from the match data
 
     Parameters
     ----------
     command_instance : populate_finished_matches.Command
         Command instance fixture
-    matches_df : pd.DataFrame
-        Matches df fixture
+    match_df : pd.DataFrame
+        Match df fixture
     """
 
-    matches_df.loc[0, "team1"] = None
-    matches_df.loc[1, "spi2"] = None
+    match_df.loc[0, "team1"] = None
+    match_df.loc[1, "spi2"] = None
 
-    command_instance.matches_df = matches_df
+    command_instance._match_df = match_df
     command_instance._drop_nan_values()
 
-    assert command_instance.matches_df.shape[0] == 1
-
-
-def test_reset_matches_table_sequence_resets_sequence(
-    command_instance: populate_finished_matches.Command,
-) -> None:
-    """
-    Test that the _reset_matches_table_sequence
-    method resets the sequence of the matches table
-
-    Parameters
-    ----------
-    command_instance : populate_finished_matches.Command,
-        Command instance fixture
-    """
-
-    with patch("django.db.connection.cursor") as mock_cursor:
-        command_instance._reset_matches_table_sequence()
-
-        mock_cursor.return_value.__enter__.return_value.execute.assert_called_once_with(
-            "DELETE FROM sqlite_sequence WHERE name='matches';"
-        )
+    assert command_instance._match_df.shape[0] == 1
 
 
 def test_set_match_column_types_sets_column_types(
     command_instance: populate_finished_matches.Command,
-    matches_df: pd.DataFrame,
+    match_df: pd.DataFrame,
 ) -> None:
     """
-    Test that the _set_matches_df_column_types method sets
-    the column types of the matches data
+    Test that the _set_match_column_types method
+    sets the column types of the match data
 
     Parameters
     ----------
     command_instance : populate_finished_matches.Command
         Command instance fixture
-    matches_df : pd.DataFrame
-        Matches df fixture
+    match_df : pd.DataFrame
+        Match df fixture
     """
 
     expected_match_fields_types = {
@@ -292,70 +270,94 @@ def test_set_match_column_types_sets_column_types(
         "score2": "int64",
     }
 
-    command_instance.matches_df = matches_df
-    command_instance._extract_matches_columns()
+    command_instance._match_df = match_df
+    command_instance._extract_match_columns()
     command_instance._set_match_column_types()
 
     for field, dtype in expected_match_fields_types.items():
-        assert command_instance.matches_df[field].dtype == dtype
+        assert command_instance._match_df[field].dtype == dtype
 
 
 def test_generate_match_instances_creates_match_instances(
     command_instance: populate_finished_matches.Command,
-    matches_df: pd.DataFrame,
+    match_df: pd.DataFrame,
 ) -> None:
     """
     Test that the _generate_match_instances method
-    creates Match instances from the matches data
+    creates Match instances from the match data
 
     Parameters
     ----------
     command_instance : populate_finished_matches.Command
         Command instance fixture
-    matches_df : pd.DataFrame
-        Matches df fixture
+    match_df : pd.DataFrame
+        Match df fixture
     """
 
-    command_instance.matches_df = matches_df
-    command_instance._extract_matches_columns()
+    command_instance._match_df = match_df
+    command_instance._extract_match_columns()
     command_instance._set_match_column_types()
     command_instance._generate_match_instances()
 
-    for match_instance in command_instance._matches_instances:
+    for match_instance in command_instance._match_instances:
         assert isinstance(match_instance, Match)
+
+
+def test_reset_sequence_of_table_matches_resets_ids_of_table_matches(
+    command_instance: populate_finished_matches.Command,
+) -> None:
+    """
+    Test that the _reset_sequence_of_table_matches
+    method resets the IDs of the table matches
+
+    Parameters
+    ----------
+    command_instance : populate_finished_matches.Command,
+        Command instance fixture
+    """
+
+    with patch("django.db.connection.cursor") as mock_cursor:
+        command_instance._reset_sequence_of_table_matches()
+
+        mock_cursor.return_value.__enter__.return_value.execute.assert_called_once_with(
+            "DELETE FROM sqlite_sequence WHERE name='matches';"
+        )
 
 
 def test_insert_matches_in_db_calls_submethods(
     command_instance: populate_finished_matches.Command,
-    matches_df: pd.DataFrame,
+    match_df: pd.DataFrame,
 ):
     """
-    Test that the _insert_matches_in_db method calls
-    the necessary submethods
+    Test that the _insert_matches_in_db
+    method calls the necessary submethods
 
     Parameters
     ----------
     command_instance : populate_finished_matches.Command
         Command instance fixture
-    matches_df : pd.DataFrame
-        Matches df fixture
+    match_df : pd.DataFrame
+        Match df fixture
     """
 
     match_objects_mock = Mock()
-    reset_matches_table_sequence_mock = Mock()
+    reset_sequence_of_table_matches_mock = Mock()
 
     Match.objects = match_objects_mock
-    command_instance._reset_matches_table_sequence = reset_matches_table_sequence_mock
 
-    command_instance.matches_df = matches_df
-    command_instance._extract_matches_columns()
+    command_instance._reset_sequence_of_table_matches = (
+        reset_sequence_of_table_matches_mock
+    )
+
+    command_instance._match_df = match_df
+    command_instance._extract_match_columns()
     command_instance._set_match_column_types()
     command_instance._generate_match_instances()
     command_instance._insert_matches_in_db()
 
     match_objects_mock.all.return_value.delete.assert_called_once()
-    reset_matches_table_sequence_mock.assert_called_once()
+    reset_sequence_of_table_matches_mock.assert_called_once()
 
     match_objects_mock.bulk_create.assert_called_once_with(
-        command_instance._matches_instances
+        command_instance._match_instances
     )

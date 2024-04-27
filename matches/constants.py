@@ -1,8 +1,6 @@
 from enum import Enum
 
-MATCHES_DATA_URL = (
-    "https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv"
-)
+MATCH_DATA_URL = "https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv"
 
 
 class MatchFields(Enum):
@@ -22,7 +20,7 @@ class MatchFields(Enum):
     score2 = "score2"
 
 
-class MatchFieldsTypes(Enum):
+class MatchFieldTypes(Enum):
     date = "datetime64[ns]"
     league = "object"
     season = "int64"
