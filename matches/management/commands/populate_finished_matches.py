@@ -20,10 +20,10 @@ class Command(BaseCommand):
         Execute the command to populate finished matches
         """
 
-        self.stdout.write(self.style.HTTP_INFO("Downloading matches data..."))
+        self.stdout.write(self.style.HTTP_INFO("Downloading match data..."))
         self._download_matches_data()
 
-        self.stdout.write(self.style.HTTP_INFO("Extracting matches columns..."))
+        self.stdout.write(self.style.HTTP_INFO("Extracting match columns..."))
         self._extract_matches_columns()
 
         self.stdout.write(self.style.HTTP_INFO("Filtering finished matches..."))
@@ -31,6 +31,12 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.HTTP_INFO("Dropping NaN values..."))
         self._drop_nan_values()
+
+        self.stdout.write(self.style.HTTP_INFO("Setting match column types..."))
+        self._set_match_column_types()
+
+        self.stdout.write(self.style.HTTP_INFO("Generating match instances..."))
+        self._generate_match_instances()
 
         self.stdout.write(self.style.HTTP_INFO("Inserting matches in database..."))
         self._insert_matches_in_db()
@@ -106,19 +112,36 @@ class Command(BaseCommand):
 
         self.matches_df = self.matches_df.dropna().reset_index(drop=True)
 
+    def _set_match_column_types(self) -> None:
+        """
+        Set matches df column types
+        """
+
+        match_fields_types = dict(MatchFieldsTypes.__members__.items())
+
+        for column in self.matches_df.columns.to_list():
+            self.matches_df[column] = self.matches_df[column].astype(
+                match_fields_types[column].value
+            )
+
+    def _generate_match_instances(self) -> None:
+        """
+        Generate matches instances
+        """
+
+        self._matches_instances = [
+            Match(**match) for match in self.matches_df.to_dict(orient="records")
+        ]
+
     def _insert_matches_in_db(self) -> None:
         """
         Insert matches in database
         """
 
         Match.objects.all().delete()
-
         self._reset_matches_table_sequence()
-        self._set_matches_df_column_types()
 
-        Match.objects.bulk_create(
-            [Match(**match) for match in self.matches_df.to_dict(orient="records")]
-        )
+        Match.objects.bulk_create(self._matches_instances)
 
         self.stdout.write(
             self.style.SUCCESS("Finished populating matches in database!")
@@ -132,16 +155,4 @@ class Command(BaseCommand):
         with connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM sqlite_sequence WHERE name='" + Match._meta.db_table + "';"
-            )
-
-    def _set_matches_df_column_types(self) -> None:
-        """
-        Set matches df column types
-        """
-
-        match_fields_types = dict(MatchFieldsTypes.__members__.items())
-
-        for column in self.matches_df.columns.to_list():
-            self.matches_df[column] = self.matches_df[column].astype(
-                match_fields_types[column].value
             )

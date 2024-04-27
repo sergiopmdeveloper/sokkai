@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from urllib.error import HTTPError
 
 import pandas as pd
@@ -259,7 +259,7 @@ def test_reset_matches_table_sequence_resets_sequence(
         )
 
 
-def test_set_matches_df_column_types_sets_column_types(
+def test_set_match_column_types_sets_column_types(
     command_instance: populate_finished_matches.Command,
     matches_df: pd.DataFrame,
 ) -> None:
@@ -294,19 +294,19 @@ def test_set_matches_df_column_types_sets_column_types(
 
     command_instance.matches_df = matches_df
     command_instance._extract_matches_columns()
-    command_instance._set_matches_df_column_types()
+    command_instance._set_match_column_types()
 
     for field, dtype in expected_match_fields_types.items():
         assert command_instance.matches_df[field].dtype == dtype
 
 
-def test_insert_matches_in_db_calls_submethods(
+def test_generate_match_instances_creates_match_instances(
     command_instance: populate_finished_matches.Command,
     matches_df: pd.DataFrame,
 ) -> None:
     """
-    Test that the _insert_matches_in_db
-    method calls the necessary submethods
+    Test that the _generate_match_instances method
+    creates Match instances from the matches data
 
     Parameters
     ----------
@@ -318,23 +318,44 @@ def test_insert_matches_in_db_calls_submethods(
 
     command_instance.matches_df = matches_df
     command_instance._extract_matches_columns()
-    command_instance._filter_finished_matches()
-    command_instance._drop_nan_values()
+    command_instance._set_match_column_types()
+    command_instance._generate_match_instances()
 
-    with (
-        patch(
-            "matches.management.commands.populate_finished_matches.Match.objects"
-        ) as mock_match_objects,
-        patch(
-            "matches.management.commands.populate_finished_matches.Command._reset_matches_table_sequence"
-        ) as mock_reset_sequence,
-        patch(
-            "matches.management.commands.populate_finished_matches.Command._set_matches_df_column_types"
-        ) as mock_set_column_types,
-    ):
-        command_instance._insert_matches_in_db()
+    for match_instance in command_instance._matches_instances:
+        assert isinstance(match_instance, Match)
 
-        mock_match_objects.all.return_value.delete.assert_called_once()
-        mock_reset_sequence.assert_called_once()
-        mock_set_column_types.assert_called_once()
-        mock_match_objects.bulk_create.assert_called_once()
+
+def test_insert_matches_in_db_calls_submethods(
+    command_instance: populate_finished_matches.Command,
+    matches_df: pd.DataFrame,
+):
+    """
+    Test that the _insert_matches_in_db method calls
+    the necessary submethods
+
+    Parameters
+    ----------
+    command_instance : populate_finished_matches.Command
+        Command instance fixture
+    matches_df : pd.DataFrame
+        Matches df fixture
+    """
+
+    match_objects_mock = Mock()
+    reset_matches_table_sequence_mock = Mock()
+
+    Match.objects = match_objects_mock
+    command_instance._reset_matches_table_sequence = reset_matches_table_sequence_mock
+
+    command_instance.matches_df = matches_df
+    command_instance._extract_matches_columns()
+    command_instance._set_match_column_types()
+    command_instance._generate_match_instances()
+    command_instance._insert_matches_in_db()
+
+    match_objects_mock.all.return_value.delete.assert_called_once()
+    reset_matches_table_sequence_mock.assert_called_once()
+
+    match_objects_mock.bulk_create.assert_called_once_with(
+        command_instance._matches_instances
+    )
