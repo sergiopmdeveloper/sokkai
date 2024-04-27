@@ -21,21 +21,21 @@ class Command(BaseCommand):
         """
 
         self.stdout.write(self.style.HTTP_INFO("Downloading matches data..."))
-        self.__download_matches_data()
+        self._download_matches_data()
 
         self.stdout.write(self.style.HTTP_INFO("Extracting matches columns..."))
-        self.__extract_matches_columns()
+        self._extract_matches_columns()
 
         self.stdout.write(self.style.HTTP_INFO("Filtering finished matches..."))
-        self.__filter_finished_matches()
+        self._filter_finished_matches()
 
         self.stdout.write(self.style.HTTP_INFO("Dropping NaN values..."))
-        self.__drop_nan_values()
+        self._drop_nan_values()
 
         self.stdout.write(self.style.HTTP_INFO("Inserting matches in database..."))
-        self.__insert_matches_in_db()
+        self._insert_matches_in_db()
 
-    def __download_matches_data(self) -> None:
+    def _download_matches_data(self) -> None:
         """
         Download matches data
 
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         except HTTPError:
             raise DownloadError("Error downloading matches data")
 
-    def __extract_matches_columns(self) -> None:
+    def _extract_matches_columns(self) -> None:
         """
         Extract columns from matches data
 
@@ -84,7 +84,7 @@ class Command(BaseCommand):
                 f"Fields {extract_keys_from_key_error(e)} not found in matches data"
             )
 
-    def __filter_finished_matches(self) -> None:
+    def _filter_finished_matches(self) -> None:
         """
         Filter finished matches
 
@@ -94,44 +94,54 @@ class Command(BaseCommand):
             If one or multiple fields are not found in the matches data
         """
 
-        try:
-            self.matches_df = self.matches_df[
-                (self.matches_df[MatchFields.score1.value].notnull())
-                & (self.matches_df[MatchFields.score2.value].notnull())
-            ]
-        except KeyError as e:
-            raise FieldsNotFound(f"Field {e} not found in matches data")
+        self.matches_df = self.matches_df[
+            (self.matches_df[MatchFields.score1.value].notnull())
+            & (self.matches_df[MatchFields.score2.value].notnull())
+        ]
 
-    def __drop_nan_values(self) -> None:
+    def _drop_nan_values(self) -> None:
         """
         Drop NaN values
         """
 
         self.matches_df = self.matches_df.dropna().reset_index(drop=True)
 
-    def __insert_matches_in_db(self) -> None:
+    def _insert_matches_in_db(self) -> None:
         """
         Insert matches in database
         """
 
         Match.objects.all().delete()
 
+        self._reset_matches_table_sequence()
+        self._set_matches_df_column_types()
+
+        Match.objects.bulk_create(
+            [Match(**match) for match in self.matches_df.to_dict(orient="records")]
+        )
+
+        self.stdout.write(
+            self.style.SUCCESS("Finished populating matches in database!")
+        )
+
+    def _reset_matches_table_sequence(self) -> None:
+        """
+        Reset matches table sequence
+        """
+
         with connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM sqlite_sequence WHERE name='" + Match._meta.db_table + "';"
             )
 
+    def _set_matches_df_column_types(self) -> None:
+        """
+        Set matches df column types
+        """
+
+        match_fields_types = dict(MatchFieldsTypes.__members__.items())
+
         for column in self.matches_df.columns.to_list():
             self.matches_df[column] = self.matches_df[column].astype(
-                MatchFieldsTypes[column].value
+                match_fields_types[column].value
             )
-
-        matches_to_insert = [
-            Match(**match) for match in self.matches_df.to_dict(orient="records")
-        ]
-
-        Match.objects.bulk_create(matches_to_insert)
-
-        self.stdout.write(
-            self.style.SUCCESS("Finished populating matches in database!")
-        )
