@@ -1,7 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+:root {
+  --dark-blue: #111B29;
+  --medium-blue: #18273E;
+  --light-blue: #382AA7;
+  --green: #21FF9F;
+  --white: #FFFFFF;
+}
+
 body {
   font-family: 'Roboto', sans-serif;
+  background-color: var(--dark-blue);
   box-sizing: border-box;
   margin: 0;
 }
@@ -12,6 +21,47 @@ h1 {
 
 p {
   margin: 0;
+}
+
+button {
+  font-size: 1rem;
+  padding: 0.5rem;
+  color: var(--white);
+  background-color: var(--medium-blue);
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.2);
+  }
+}
+
+select {
+  font-size: 1rem;
+  padding: 0.5rem;
+  color: var(--white);
+  background-color: var(--medium-blue);
+  border-radius: 0.25rem;
+  border: none;
+}
+
+input {
+  font-size: 1rem;
+  padding: 0.5rem;
+  color: var(--white);
+  background-color: var(--medium-blue);
+  border-radius: 0.25rem;
+  border: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+input[type="date"]::after {
+  content: url('icons/calendar.svg');
+  color: var(--white);
 }
 
 .default-container {
