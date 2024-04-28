@@ -12,3 +12,6 @@ db.sqlite3
 
 # Pytest cache
 .pytest_cache
+
+# Production static files
+static

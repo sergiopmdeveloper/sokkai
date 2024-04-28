@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="{% block description %}{% endblock %}" />
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'global.css' %}" />
+
+    {% block css %}{% endblock %}
+
+    <title>{% block title %}Sokkai{% endblock %} | sokkai.com</title>
+  </head>
+
+  <body>
+    {% block content %}
+      <span>Hey developer! You forget to add the content of this page 🫣</span>
+    {% endblock %}
+  </body>
+</html>
