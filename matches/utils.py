@@ -1,10 +1,7 @@
-from django.db.models import Max
-from django.http import HttpRequest
-
-from matches.models import Match
-
-
-def generate_match_filters(request: HttpRequest) -> dict[str, str]:
+def generate_match_filters(
+    date: str,
+    league: str,
+) -> dict[str, str]:
     """
     Generate match filters.
 
@@ -21,12 +18,9 @@ def generate_match_filters(request: HttpRequest) -> dict[str, str]:
 
     filters = {}
 
-    date = request.GET.get("date") or Match.objects.aggregate(Max("date"))["date__max"]
-    league = request.GET.get("league")
-
     filters["date"] = date
 
-    if league:
+    if league != "All leagues":
         filters["league"] = league
 
     return filters
