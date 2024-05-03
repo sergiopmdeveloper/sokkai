@@ -64,6 +64,19 @@ input[type="date"]::after {
   color: var(--white);
 }
 
+::-webkit-scrollbar {
+  height: 2px;
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--white);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--green);
+}
+
 .default-container {
   max-width: 1280px;
   margin: 0 auto;
