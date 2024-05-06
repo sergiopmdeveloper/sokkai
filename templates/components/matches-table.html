@@ -1,0 +1,125 @@
+<!-- Matches table component -->
+
+{% load multiply_filter %}
+
+<div class="default-container">
+  {% if not matches %}
+    <p>No matches found</p>
+  {% else %}
+
+    <div class="matches-container">
+      {% for match in matches %}
+        <div class="matches-container__match">
+          <div class="matches-container__match__teams">
+            <h1 class="matches-container__match__teams--names">
+              {{ match.team1 }} vs {{ match.team2 }}
+            </h1>
+          </div>
+
+          <div class="matches-container__match__stats">
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                Date
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.date }}
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                League
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.league }}
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                Season
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.season }}
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                Home power
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.spi1 }}
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                Away power
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.spi2 }}
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                1
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.prob1|multiply:100 }}%
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                X
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.probtie|multiply:100 }}%
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                2
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.prob2|multiply:100 }}%
+              </span>
+            </div>
+
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                Projected score 1
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.proj_score1 }}
+              </span>
+            </div>
+            
+            <div class="matches-container__match__stats__stat">
+              <span class="matches-container__match__stats__stat--name">
+                Projected score 2
+              </span>
+              <span class="matches-container__match__stats__stat--value">
+                {{ match.proj_score2 }}
+              </span>
+            </div>
+          </div>
+          <div class="matches-container__match__scores">
+            <span class="matches-container__match__scores--value">
+              {{ match.score1 }}
+            </span>
+
+            <span style="color: var(--green)">-</span>
+            
+            <span class="matches-container__match__scores--value">
+              {{ match.score2 }}
+            </span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
