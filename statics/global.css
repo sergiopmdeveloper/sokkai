@@ -24,17 +24,18 @@ p {
 }
 
 button {
+  font-weight: 700;
   font-size: 1rem;
   padding: 0.5rem;
-  color: var(--white);
-  background-color: var(--medium-blue);
+  color: var(--dark-blue);
+  background-color: var(--green);
   border-radius: 0.25rem;
   border: none;
   cursor: pointer;
+}
 
-  &:hover {
-    filter: brightness(1.2);
-  }
+button:hover {
+  filter: brightness(0.8);
 }
 
 select {

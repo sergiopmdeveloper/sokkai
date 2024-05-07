@@ -1,17 +1,15 @@
 <!-- Match filters component -->
 
 <div class="default-container">
-  <div>
-    <form action={% url action_url %} method="get">
-      <input name="date" id="date" type="date" value={{ selected_date }}>
+  <form class="filters-container" action={% url action_url %} method="get">
+    <input class="filters-container--date" name="date" id="date" type="date" value={{ selected_date }}>
 
-      <select name="league" id="league">
-        {% for league in unique_leagues %}
-          <option value="{{ league }}" {% if league == selected_league %}selected{% endif %}>{{ league }}</option>
-        {% endfor %}
-      </select>
-      
-      <button type="submit">Search</button>
-    </form>
-  </div>
+    <select class="filters-container--leagues" name="league" id="league">
+      {% for league in unique_leagues %}
+        <option value="{{ league }}" {% if league == selected_league %}selected{% endif %}>{{ league }}</option>
+      {% endfor %}
+    </select>
+    
+    <button class="filters-container--search" type="submit">Search</button>
+  </form>
 </div>
