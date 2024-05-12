@@ -35,7 +35,7 @@ button {
 }
 
 button:hover {
-  filter: brightness(0.8);
+  filter: brightness(0.9);
 }
 
 select {
@@ -49,9 +49,9 @@ select {
 
 input {
   font-size: 1rem;
-  padding: 0.5rem;
   color: var(--white);
   background-color: var(--medium-blue);
+  padding-inline: 0.5rem;
   border-radius: 0.25rem;
   border: none;
 }

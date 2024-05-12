@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="{% static 'global.css' %}" />
 
     {% block css %}{% endblock %}
+    {% block js %}{% endblock %}
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <title>{% block title %}Sokkai{% endblock %} | sokkai.com</title>
   </head>
