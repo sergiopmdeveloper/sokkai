@@ -15,6 +15,8 @@
             All leagues
           {% endif %}
         </span>
+        {% load static %}
+        <img src={% static 'icons/caret-down.svg' %} />
       </div>
       
       <div class="filters-container__leagues__dropdown" x-show="open" x-transition>
