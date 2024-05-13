@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Match results{% endblock %}
+{% block description %}Match results page of the Sokkai app{% endblock %}
+
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'components/matches-table/matches-table.css' %}">
+    <link rel="stylesheet" href="{% static 'components/match-filters/match-filters.css' %}">
+{% endblock %}
+
+{% load static %}
+{% block js %}
+  <script src="{% static 'components/match-filters/match-filters.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <main>
+    {% include "components/match-filters.html" with action_url="match_results" selected_date=selected_date unique_leagues=unique_leagues selected_league=selected_league %}
+    {% include "components/matches-table.html" with matches=matches %}
+  </main>
+{% endblock %}

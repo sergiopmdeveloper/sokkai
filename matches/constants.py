@@ -1,5 +1,9 @@
 from enum import Enum
 
+from django.db.models import Max
+
+from matches.models import Match
+
 MATCH_DATA_URL = "https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv"
 
 
@@ -35,3 +39,11 @@ class MatchFieldTypes(Enum):
     proj_score2 = "float64"
     score1 = "int64"
     score2 = "int64"
+
+
+MATCH_RESULTS_DEFAULT_DATE = Match.objects.aggregate(Max("date"))[
+    "date__max"
+].isoformat()
+
+
+ALL_LEAGUES = "All leagues"

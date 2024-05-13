@@ -1,0 +1,36 @@
+<!-- Match filters component -->
+
+<div class="default-container">
+  <form class="filters-container" action={% url action_url %} method="get">
+    <input class="filters-container--date" name="date" id="date" type="date" value={{ selected_date }}>
+
+    <div class="filters-container__leagues" x-data="{ open: false }">
+      <input name="league" id="league" type="hidden" value="{% if selected_league %}{{ selected_league }}{% endif %}"></input>
+
+      <div class="filters-container__leagues__selected" x-on:click="open = ! open">
+        <span class="filters-container__leagues__selected--league" id="league-filter">
+          {% if selected_league %}
+            {{ selected_league }}
+          {% else %}
+            All leagues
+          {% endif %}
+        </span>
+        {% load static %}
+        <img src={% static 'icons/caret-down.svg' %} />
+      </div>
+      
+      <div class="filters-container__leagues__dropdown" x-show="open" x-transition>
+        {% for league in unique_leagues %}
+          <div
+          class="filters-container__leagues__dropdown__element"
+          onclick="setLeagueFilter('{{ league }}')"
+          x-on:click="open = false">
+            <span class="filters-container__leagues__dropdown__element--league">{{ league }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <button class="filters-container--search" type="submit">Search</button>
+  </form>
+</div>
