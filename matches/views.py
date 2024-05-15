@@ -1,10 +1,15 @@
+from django.db.models import Max
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
-from matches.constants import ALL_LEAGUES, MATCH_RESULTS_DEFAULT_DATE
+from matches.constants import ALL_LEAGUES
 from matches.models import Match
 from matches.utils import generate_match_filters
+
+MATCH_RESULTS_DEFAULT_DATE = Match.objects.aggregate(Max("date"))[
+    "date__max"
+].isoformat()
 
 
 @require_http_methods(["GET"])
