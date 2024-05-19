@@ -1,80 +1,32 @@
-from __future__ import annotations
-
 import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 
 from matches.constants import MatchFields
 
+MATCH_WINNER_COLUMN = "winner"
 
-class GenerateMatchWinnerColumn(BaseEstimator, TransformerMixin):
+
+def generate_match_winner_column(df: pd.DataFrame) -> pd.DataFrame:
     """
-    GenerateMatchWinnerColumn custom transformer
+    Generate match winner column
 
-    Attributes
+    Parameters
     ----------
-    MATCH_WINNER_COLUMN : str
-        Column name for match winner
+    df : pd.DataFrame
+        Match DataFrame
 
-    Methods
+    Returns
     -------
-    fit(_: pd.DataFrame, y: pd.DataFrame) -> GenerateMatchWinnerColumn
-        Fit the transformer defining as attribute
-        the DataFrame with match scores
-    transform(X: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]
-        Generate match winner column and return both
-        the match DataFrame with features and the
-        match DataFrame with match winner column
+    pd.DataFrame
+        Match DataFrame with match winner column
     """
 
-    MATCH_WINNER_COLUMN = "winner"
+    df = df.copy()
 
-    def fit(self, _: pd.DataFrame, y: pd.DataFrame) -> GenerateMatchWinnerColumn:
-        """
-        Fit the transformer defining as attribute
-        the DataFrame with match scores
+    match_winner_values = np.where(
+        df[MatchFields.score1.value] > df[MatchFields.score2.value], 0, 1
+    )
 
-        Parameters
-        ----------
-        _ : pd.DataFrame
-            Match DataFrame with features
-        y : pd.DataFrame
-            Match DataFrame with targets
+    df = pd.DataFrame(match_winner_values, columns=[MATCH_WINNER_COLUMN])
 
-        Returns
-        -------
-        GenerateMatchWinnerColumn
-            The transformer
-        """
-
-        self.y = y
-
-        return self
-
-    def transform(self, X: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Generate match winner column and return both
-        the match DataFrame with features and the
-        match DataFrame with match winner column
-
-        Parameters
-        ----------
-        X : pd.DataFrame
-            Match DataFrame with features
-
-        Returns
-        -------
-        tuple[pd.DataFrame, pd.DataFrame]
-            Tuple with match DataFrame with features
-            and match DataFrame with match winner column
-        """
-
-        match_winner_values = np.where(
-            self.y[MatchFields.score1.value] > self.y[MatchFields.score2.value],
-            0,
-            1,
-        )
-
-        y = pd.DataFrame(data=match_winner_values, columns=[self.MATCH_WINNER_COLUMN])
-
-        return X, y
+    return df

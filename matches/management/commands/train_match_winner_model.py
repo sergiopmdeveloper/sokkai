@@ -2,8 +2,8 @@ import pandas as pd
 from django.core.management.base import BaseCommand
 from sklearn.pipeline import Pipeline
 
-from ai.custom import GenerateMatchWinnerColumn
-from ai.preprocessing import split_xy
+from ai.custom import generate_match_winner_column
+from ai.preprocessing import NumericalScaler, split_xy
 from matches.constants import MatchFields
 from matches.models import Match
 
@@ -27,8 +27,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO("Initializing pipeline steps..."))
         self._initialize_pipeline_steps()
 
-        self.stdout.write(self.style.HTTP_INFO("Adding match winner column step..."))
-        self._add_match_winner_column_step()
+        self.stdout.write(self.style.HTTP_INFO("Generating match winner column..."))
+        self._generate_match_winner_column()
+
+        self.stdout.write(self.style.HTTP_INFO("Adding scale features step..."))
+        self._add_scale_features_step()
 
         self.stdout.write(self.style.HTTP_INFO("Executing pipeline..."))
         self._execute_pipeline()
@@ -75,16 +78,23 @@ class Command(BaseCommand):
 
         self._pipeline_steps = []
 
-    def _add_match_winner_column_step(self) -> None:
+    def _generate_match_winner_column(self) -> None:
         """
-        Add match winner column step to pipeline
+        Generate match winner column
         """
 
-        generate_match_winner_column_transformer = GenerateMatchWinnerColumn()
+        y = self.y.copy()
 
-        self._pipeline_steps.append(
-            ("generate_match_winner_column", generate_match_winner_column_transformer)
-        )
+        self.y = generate_match_winner_column(df=y)
+
+    def _add_scale_features_step(self) -> None:
+        """
+        Add scale features step to pipeline
+        """
+
+        numerical_scaler_transformer = NumericalScaler()
+
+        self._pipeline_steps.append(("scale_features", numerical_scaler_transformer))
 
     def _execute_pipeline(self) -> None:
         """
