@@ -9,6 +9,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 
 from ai.custom import generate_match_winner_column
+from ai.interfaces import AbstractPipelineWithModel
 from ai.preprocessing import NumericalScaler, split_xy
 from matches.constants import MatchFields
 from matches.models import Match
@@ -18,13 +19,16 @@ pd.set_option("future.no_silent_downcasting", True)
 MATCH_WINNER_MODEL_DIR = os.getcwd() + "/ai/pipelines/match_winner"
 
 
-class Command(BaseCommand):
+class Command(BaseCommand, AbstractPipelineWithModel):
     help = "Train match winner model"
 
     def handle(self, *args, **options) -> None:
         """
         Execute the command to train the match winner model
         """
+
+        self.stdout.write(self.style.HTTP_INFO("Creating pipeline directory..."))
+        os.makedirs(MATCH_WINNER_MODEL_DIR, exist_ok=True)
 
         self.stdout.write(self.style.HTTP_INFO("Downloading match data..."))
         self._get_match_df()
@@ -53,8 +57,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO("Executing pipeline..."))
         self._execute_pipeline()
 
-        self.stdout.write(self.style.HTTP_INFO("Exporting pipeline and metrics..."))
-        self._export_pipeline_and_metrics()
+        self.stdout.write(self.style.HTTP_INFO("Exporting pipeline..."))
+        self._export_pipeline()
+
+        self.stdout.write(self.style.HTTP_INFO("Exporting pipeline metrics..."))
+        self._export_pipeline_metrics()
 
     def _get_match_df(self) -> None:
         """
@@ -159,16 +166,19 @@ class Command(BaseCommand):
 
         self._pipeline_with_model.fit(self.X, self.y)
 
-    def _export_pipeline_and_metrics(self) -> None:
+    def _export_pipeline(self) -> None:
         """
-        Export pipeline and metrics
+        Export pipeline
         """
-
-        os.makedirs(MATCH_WINNER_MODEL_DIR, exist_ok=True)
 
         joblib.dump(
             self._pipeline_with_model, f"{MATCH_WINNER_MODEL_DIR}/pipeline.joblib"
         )
+
+    def _export_pipeline_metrics(self) -> None:
+        """
+        Export pipeline metrics
+        """
 
         with open(f"{MATCH_WINNER_MODEL_DIR}/metrics.json", "w") as file:
             json.dump(self._metrics, file, indent=4)
