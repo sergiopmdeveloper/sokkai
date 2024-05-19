@@ -32,17 +32,29 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO("Splitting X and y..."))
         self._split_xy()
 
-        self.stdout.write(self.style.HTTP_INFO("Initializing pipeline steps..."))
-        self._initialize_pipeline_steps()
-
         self.stdout.write(self.style.HTTP_INFO("Generating match winner column..."))
         self._generate_match_winner_column()
+
+        self.stdout.write(self.style.HTTP_INFO("Initializing pipeline steps..."))
+        self._initialize_pipeline_steps()
 
         self.stdout.write(self.style.HTTP_INFO("Adding scale features step..."))
         self._add_scale_features_step()
 
+        self.stdout.write(self.style.HTTP_INFO("Initializing pipeline..."))
+        self._initialize_pipeline()
+
+        self.stdout.write(self.style.HTTP_INFO("Injecting model in pipeline..."))
+        self._inject_model_in_pipeline()
+
+        self.stdout.write(self.style.HTTP_INFO("Generating pipeline metrics..."))
+        self._generate_pipeline_metrics()
+
         self.stdout.write(self.style.HTTP_INFO("Executing pipeline..."))
         self._execute_pipeline()
+
+        self.stdout.write(self.style.HTTP_INFO("Exporting pipeline and metrics..."))
+        self._export_pipeline_and_metrics()
 
     def _get_match_df(self) -> None:
         """
@@ -79,13 +91,6 @@ class Command(BaseCommand):
             target_columns=target_columns,
         )
 
-    def _initialize_pipeline_steps(self) -> None:
-        """
-        Initialize the pipeline
-        """
-
-        self._pipeline_steps = []
-
     def _generate_match_winner_column(self) -> None:
         """
         Generate match winner column
@@ -94,6 +99,13 @@ class Command(BaseCommand):
         y = self.y.copy()
 
         self.y = generate_match_winner_column(df=y)
+
+    def _initialize_pipeline_steps(self) -> None:
+        """
+        Initialize the pipeline
+        """
+
+        self._pipeline_steps = []
 
     def _add_scale_features_step(self) -> None:
         """
@@ -104,24 +116,17 @@ class Command(BaseCommand):
 
         self._pipeline_steps.append(("scale_features", numerical_scaler_transformer))
 
-    def _execute_pipeline(self) -> None:
+    def _initialize_pipeline(self) -> None:
         """
-        Execute the pipeline
+        Initialize the pipeline
         """
 
-        self._inject_model_in_pipeline()
-        self._generate_pipeline_metrics()
-
-        self._pipeline_with_model.fit(self.X, self.y)
-
-        self._export_pipeline_and_metrics()
+        self._pipeline = Pipeline(self._pipeline_steps)
 
     def _inject_model_in_pipeline(self) -> None:
         """
         Inject model in pipeline
         """
-
-        self._pipeline = Pipeline(self._pipeline_steps)
 
         self._pipeline_with_model = Pipeline(
             [("pipeline", self._pipeline), ("model", LogisticRegression())]
@@ -146,6 +151,13 @@ class Command(BaseCommand):
                 self._pipeline_with_model, self.X, self.y, cv=5, scoring="f1"
             ).mean(),
         }
+
+    def _execute_pipeline(self) -> None:
+        """
+        Execute the pipeline
+        """
+
+        self._pipeline_with_model.fit(self.X, self.y)
 
     def _export_pipeline_and_metrics(self) -> None:
         """
