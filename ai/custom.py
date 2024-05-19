@@ -6,7 +6,7 @@ from matches.constants import MatchFields
 MATCH_WINNER_COLUMN = "winner"
 
 
-def generate_match_winner_column(df: pd.DataFrame) -> pd.DataFrame:
+def generate_match_winner_column(df: pd.DataFrame) -> np.ndarray[np.int64]:
     """
     Generate match winner column
 
@@ -17,8 +17,8 @@ def generate_match_winner_column(df: pd.DataFrame) -> pd.DataFrame:
 
     Returns
     -------
-    pd.DataFrame
-        Match DataFrame with match winner column
+    np.ndarray[np.int64]
+        Array with match winner values
     """
 
     df = df.copy()
@@ -29,4 +29,4 @@ def generate_match_winner_column(df: pd.DataFrame) -> pd.DataFrame:
 
     df = pd.DataFrame(match_winner_values, columns=[MATCH_WINNER_COLUMN])
 
-    return df
+    return df.values.ravel()

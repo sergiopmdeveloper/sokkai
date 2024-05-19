@@ -1,6 +1,11 @@
+import json
+import os
+
+import joblib
 import pandas as pd
 from django.core.management.base import BaseCommand
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 
 from ai.custom import generate_match_winner_column
@@ -9,6 +14,8 @@ from matches.constants import MatchFields
 from matches.models import Match
 
 pd.set_option("future.no_silent_downcasting", True)
+
+MATCH_WINNER_MODEL_DIR = os.getcwd() + "/ai/pipelines/match_winner"
 
 
 class Command(BaseCommand):
@@ -103,18 +110,54 @@ class Command(BaseCommand):
         """
 
         self._inject_model_in_pipeline()
+        self._generate_pipeline_metrics()
 
         self._pipeline_with_model.fit(self.X, self.y)
+
+        self._export_pipeline_and_metrics()
 
     def _inject_model_in_pipeline(self) -> None:
         """
         Inject model in pipeline
         """
 
-        self.stdout.write(self.style.HTTP_INFO("Injecting model in pipeline..."))
-
         self._pipeline = Pipeline(self._pipeline_steps)
 
         self._pipeline_with_model = Pipeline(
             [("pipeline", self._pipeline), ("model", LogisticRegression())]
         )
+
+    def _generate_pipeline_metrics(self) -> None:
+        """
+        Generate pipeline metrics
+        """
+
+        self._metrics = {
+            "accuracy": cross_val_score(
+                self._pipeline_with_model, self.X, self.y, cv=5, scoring="accuracy"
+            ).mean(),
+            "precision": cross_val_score(
+                self._pipeline_with_model, self.X, self.y, cv=5, scoring="precision"
+            ).mean(),
+            "recall": cross_val_score(
+                self._pipeline_with_model, self.X, self.y, cv=5, scoring="recall"
+            ).mean(),
+            "f1": cross_val_score(
+                self._pipeline_with_model, self.X, self.y, cv=5, scoring="f1"
+            ).mean(),
+        }
+
+    def _export_pipeline_and_metrics(self) -> None:
+        """
+        Export pipeline and metrics
+        """
+
+        os.makedirs(MATCH_WINNER_MODEL_DIR, exist_ok=True)
+
+        joblib.dump(
+            self._pipeline_with_model, f"{MATCH_WINNER_MODEL_DIR}/pipeline.joblib"
+        )
+
+        with open(f"{MATCH_WINNER_MODEL_DIR}/metrics.json", "w") as file:
+            json.dump(self._metrics, file, indent=4)
+            file.write("\n")
