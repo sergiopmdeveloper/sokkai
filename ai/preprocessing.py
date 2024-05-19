@@ -1,78 +1,28 @@
-from __future__ import annotations
-
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 
 
-class SplitXY(BaseEstimator, TransformerMixin):
+def split_xy(
+    df: pd.DataFrame, feature_columns: list[str], target_columns: list[str]
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    SplitXY custom transformer
+    Split X and y from DataFrame
 
-    Attributes
+    Parameters
     ----------
+    df : pd.DataFrame
+        Match DataFrame with features and targets
     feature_columns : list[str]
-        List of feature columns
+        List with feature column names
     target_columns : list[str]
-        List of target columns
+        List with target column names
 
-    Methods
+    Returns
     -------
-    fit(X: pd.DataFrame, y: any = None) -> SplitXY
-        Fit the transformer with no effect
-    transform(X: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]
-        Split X and y
+    tuple[pd.DataFrame, pd.DataFrame]
+        Tuple with DataFrame with features and DataFrame with targets
     """
 
-    def __init__(self, feature_columns: list[str], target_columns: list[str]) -> None:
-        """
-        Initialize SplitXY transformer
+    X = df[feature_columns]
+    y = df[target_columns]
 
-        Parameters
-        ----------
-        feature_columns : list[str]
-            List of feature columns
-        target_columns : list[str]
-            List of target columns
-        """
-
-        self.feature_columns = feature_columns
-        self.target_columns = target_columns
-
-    def fit(self, X: pd.DataFrame, y: any = None) -> SplitXY:
-        """
-        Fit the transformer with no effect
-
-        Parameters
-        ----------
-        X : pd.DataFrame
-            DataFrame with features and targets
-        y : any, optional
-            Not used, by default None
-
-        Returns
-        -------
-        SplitXY
-            The transformer
-        """
-
-        return self
-
-    def transform(self, X: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Split X and y
-
-        Parameters
-        ----------
-        X : pd.DataFrame
-            DataFrame with features and targets
-
-        Returns
-        -------
-        tuple[pd.DataFrame, pd.DataFrame]
-            X and Y
-        """
-
-        y = X[self.target_columns]
-        X = X[self.feature_columns]
-
-        return X, y
+    return X, y

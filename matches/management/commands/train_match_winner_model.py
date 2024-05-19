@@ -2,7 +2,8 @@ import pandas as pd
 from django.core.management.base import BaseCommand
 from sklearn.pipeline import Pipeline
 
-from ai.preprocessing import SplitXY
+from ai.custom import GenerateMatchWinnerColumn
+from ai.preprocessing import split_xy
 from matches.constants import MatchFields
 from matches.models import Match
 
@@ -20,11 +21,14 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO("Downloading match data..."))
         self._get_match_df()
 
+        self.stdout.write(self.style.HTTP_INFO("Splitting X and y..."))
+        self._split_xy()
+
         self.stdout.write(self.style.HTTP_INFO("Initializing pipeline steps..."))
         self._initialize_pipeline_steps()
 
-        self.stdout.write(self.style.HTTP_INFO("Add split X and y step to pipeline..."))
-        self._add_split_xy_step()
+        self.stdout.write(self.style.HTTP_INFO("Adding match winner column step..."))
+        self._add_match_winner_column_step()
 
         self.stdout.write(self.style.HTTP_INFO("Executing pipeline..."))
         self._execute_pipeline()
@@ -38,14 +42,7 @@ class Command(BaseCommand):
             Match.objects.all().values(), index="id"
         )
 
-    def _initialize_pipeline_steps(self) -> None:
-        """
-        Initialize the pipeline
-        """
-
-        self._pipeline_steps = []
-
-    def _add_split_xy_step(self) -> None:
+    def _split_xy(self) -> None:
         """
         Add split X and y step to pipeline
         """
@@ -65,11 +62,29 @@ class Command(BaseCommand):
             MatchFields.score2.value,
         ]
 
-        split_xy_transformer = SplitXY(
-            feature_columns=feature_columns, target_columns=target_columns
+        self.X, self.y = split_xy(
+            df=self._match_df,
+            feature_columns=feature_columns,
+            target_columns=target_columns,
         )
 
-        self._pipeline_steps.append(("split_x_and_y", split_xy_transformer))
+    def _initialize_pipeline_steps(self) -> None:
+        """
+        Initialize the pipeline
+        """
+
+        self._pipeline_steps = []
+
+    def _add_match_winner_column_step(self) -> None:
+        """
+        Add match winner column step to pipeline
+        """
+
+        generate_match_winner_column_transformer = GenerateMatchWinnerColumn()
+
+        self._pipeline_steps.append(
+            ("generate_match_winner_column", generate_match_winner_column_transformer)
+        )
 
     def _execute_pipeline(self) -> None:
         """
@@ -77,4 +92,4 @@ class Command(BaseCommand):
         """
 
         self._pipeline = Pipeline(self._pipeline_steps)
-        self._pipeline.fit_transform(self._match_df)
+        self._pipeline.fit_transform(self.X, self.y)
