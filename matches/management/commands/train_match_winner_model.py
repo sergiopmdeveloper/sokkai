@@ -1,5 +1,6 @@
 import pandas as pd
 from django.core.management.base import BaseCommand
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
 from ai.custom import generate_match_winner_column
@@ -101,5 +102,19 @@ class Command(BaseCommand):
         Execute the pipeline
         """
 
+        self._inject_model_in_pipeline()
+
+        self._pipeline_with_model.fit(self.X, self.y)
+
+    def _inject_model_in_pipeline(self) -> None:
+        """
+        Inject model in pipeline
+        """
+
+        self.stdout.write(self.style.HTTP_INFO("Injecting model in pipeline..."))
+
         self._pipeline = Pipeline(self._pipeline_steps)
-        self._pipeline.fit_transform(self.X, self.y)
+
+        self._pipeline_with_model = Pipeline(
+            [("pipeline", self._pipeline), ("model", LogisticRegression())]
+        )
