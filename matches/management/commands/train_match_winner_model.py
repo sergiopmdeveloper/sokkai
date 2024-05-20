@@ -42,8 +42,8 @@ class Command(BaseCommand, AbstractPipelineWithModel):
         self.stdout.write(self.style.HTTP_INFO("Initializing pipeline steps..."))
         self._initialize_pipeline_steps()
 
-        self.stdout.write(self.style.HTTP_INFO("Adding scale features step..."))
-        self._add_scale_features_step()
+        self.stdout.write(self.style.HTTP_INFO("Adding steps to pipeline..."))
+        self._add_steps_to_pipeline()
 
         self.stdout.write(self.style.HTTP_INFO("Initializing pipeline..."))
         self._initialize_pipeline()
@@ -114,9 +114,9 @@ class Command(BaseCommand, AbstractPipelineWithModel):
 
         self._pipeline_steps = []
 
-    def _add_scale_features_step(self) -> None:
+    def _add_steps_to_pipeline(self) -> None:
         """
-        Add scale features step to pipeline
+        Add steps to pipeline
         """
 
         numerical_scaler_transformer = NumericalScaler()

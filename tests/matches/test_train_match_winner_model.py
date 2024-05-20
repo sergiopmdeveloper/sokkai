@@ -137,3 +137,25 @@ def test_generate_match_winner_column_generates_expected_match_winner_column(
     expected_y = np.array([0, 0, 1])
 
     assert np.array_equal(command_instance.y, expected_y)
+
+
+def test_add_steps_to_pipeline_adds_expected_steps(
+    command_instance: train_match_winner_model.Command,
+) -> None:
+    """
+    Test that the _add_steps_to_pipeline method
+    adds the expected steps to the pipeline
+
+    Parameters
+    ----------
+    command_instance : train_match_winner_model.Command
+        Command instance fixture
+    """
+
+    command_instance._initialize_pipeline_steps()
+    command_instance._add_steps_to_pipeline()
+
+    assert (
+        str(command_instance._pipeline_steps)
+        == "[('scale_features', NumericalScaler())]"
+    )
