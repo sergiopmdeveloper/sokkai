@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 
 from ai.custom import generate_match_winner_column
 
