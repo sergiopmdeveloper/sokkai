@@ -113,27 +113,3 @@ def test_split_xy_splits_match_df_into_expected_X_and_y(
 
     pd.testing.assert_frame_equal(command_instance.X, expected_X)
     pd.testing.assert_frame_equal(command_instance.y, expected_y)
-
-
-def test_generate_match_winner_column_generates_expected_match_winner_column(
-    command_instance: train_match_winner_model.Command, match_df_with_id: pd.DataFrame
-) -> None:
-    """
-    Test that the _generate_match_winner_column
-    method generates the expected match winner column
-
-    Parameters
-    ----------
-    command_instance : train_match_winner_model.Command
-        Command instance fixture
-    match_df_with_id : pd.DataFrame
-        Match df with id fixture
-    """
-
-    command_instance.y = match_df_with_id[["score1", "score2"]]
-
-    command_instance._generate_match_winner_column()
-
-    expected_y = np.array([0, 0, 1])
-
-    assert np.array_equal(command_instance.y, expected_y)

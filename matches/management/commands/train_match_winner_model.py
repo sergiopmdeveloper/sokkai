@@ -32,7 +32,8 @@ class Command(BaseCommand, PipelineGenericWithModel):
         self._split_xy()
 
         self.stdout.write(self.style.HTTP_INFO("Generating match winner column..."))
-        self._generate_match_winner_column()
+        y = self.y.copy()
+        self.y = generate_match_winner_column(df=y)
 
         self.stdout.write(self.style.HTTP_INFO("Initializing pipeline steps..."))
         self._initialize_pipeline_steps()
@@ -92,19 +93,3 @@ class Command(BaseCommand, PipelineGenericWithModel):
             feature_columns=feature_columns,
             target_columns=target_columns,
         )
-
-    def _generate_match_winner_column(self) -> None:
-        """
-        Generate match winner column
-        """
-
-        y = self.y.copy()
-
-        self.y = generate_match_winner_column(df=y)
-
-    def _execute_pipeline(self) -> None:
-        """
-        Execute the pipeline
-        """
-
-        self._pipeline_with_model.fit(self.X, self.y)
