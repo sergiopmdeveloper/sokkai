@@ -1,0 +1,17 @@
+# Local database
+db.sqlite3
+
+# Development container
+.devcontainer
+
+# Python cache
+__pycache__
+
+# Visual Studio Code
+.vscode
+
+# Node modules
+node_modules
+
+# Environment variables
+.env

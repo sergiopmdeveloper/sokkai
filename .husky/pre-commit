@@ -1,0 +1,3 @@
+npm run build
+pre-commit run
+npx prettier '**/*.js' --check

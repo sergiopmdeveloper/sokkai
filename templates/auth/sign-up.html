@@ -1,0 +1,42 @@
+{# Sign up page template #}
+
+{% extends "page.html" %}
+
+{% block title %}Sign up | sokkai{% endblock title %}
+
+{% block body %}
+<main>
+    <div class="w-screen h-screen flex items-center justify-center">
+        <div class="relative w-[27.5rem] bg-gray-100 p-6 mx-2 rounded">
+            <h1 class="text-4xl font-bold">Sign up</h1>
+
+            <form class="flex flex-col gap-2 mt-6" hx-post="{% url 'sign-up' %}" hx-target="#errors">
+                {% csrf_token %}
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-lg" for="username">Username</label>
+                    <input class="w-full h-8 text-sm pl-2 rounded focus:outline-gray-800" name="username" id="username"
+                        autocomplete="username" placeholder="Username...">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-lg" for="email">Email</label>
+                    <input class="w-full h-8 text-sm pl-2 rounded focus:outline-gray-800" name="email" id="email"
+                        autocomplete="email" placeholder="Email...">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-lg" for="password">Password</label>
+                    <input class="w-full h-8 text-sm pl-2 rounded focus:outline-gray-800" type="password"
+                        name="password" id="password" autocomplete="current-password" placeholder="Password...">
+                </div>
+
+                <div id="errors"></div>
+
+                <button class="text-white bg-gray-800 mt-4 py-2 rounded hover:brightness-125"
+                    type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock body %}

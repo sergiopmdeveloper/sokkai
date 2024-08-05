@@ -1,0 +1,35 @@
+{# Base page template #}
+
+{% load django_htmx %}
+
+<!doctype html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block description %}The ultimate Django starter kit template{% endblock %}">
+
+    {% load static %}
+    <script src="{% static 'bundle.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'output.css' %}">
+
+    {% django_htmx_script %}
+
+    <title>
+        {% block title %}
+        sokkai
+        {% endblock %}
+    </title>
+</head>
+
+<body>
+    {% block body %}
+    <span>
+        Hey developer! You forget to add the content of this page 🫣
+    </span>
+    {% endblock %}
+</body>
+
+</html>
