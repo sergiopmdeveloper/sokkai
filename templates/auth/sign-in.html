@@ -7,27 +7,30 @@
 {% block body %}
 <main>
     <div class="w-screen h-screen flex items-center justify-center">
-        <div class="relative w-[27.5rem] bg-gray-100 p-6 mx-2 rounded">
-            <h1 class="text-4xl font-bold">Sign in</h1>
+        <div class="relative w-[27.5rem] bg-theme-color2 p-6 mx-2 rounded">
+            <h1 class="text-4xl font-bold text-theme-color3">Sign in</h1>
 
             <form class="flex flex-col gap-2 mt-6" hx-post="{% url 'sign-in' %}" hx-target="#errors">
                 {% csrf_token %}
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-lg" for="username">Username</label>
-                    <input class="w-full h-8 text-sm pl-2 rounded focus:outline-gray-800" name="username" id="username"
-                        autocomplete="username" placeholder="Username...">
+                    <label class="text-lg text-theme-color3" for="username">Username</label>
+                    <input
+                        class="w-full h-8 text-sm text-theme-color1 pl-2 rounded border-2 border-transparent outline-0 focus:border-theme-color4"
+                        name="username" id="username" autocomplete="username" placeholder="Username...">
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-lg" for="password">Password</label>
-                    <input class="w-full h-8 text-sm pl-2 rounded focus:outline-gray-800" type="password"
-                        name="password" id="password" autocomplete="current-password" placeholder="Password...">
+                    <label class="text-lg text-theme-color3" for="password">Password</label>
+                    <input
+                        class="w-full h-8 text-sm text-theme-color1 pl-2 rounded border-2 border-transparent outline-0 focus:border-theme-color4"
+                        type="password" name="password" id="password" autocomplete="current-password"
+                        placeholder="Password...">
                 </div>
 
                 <div id="errors"></div>
 
-                <button class="text-white bg-gray-800 mt-4 py-2 rounded hover:brightness-125"
+                <button class="text-theme-color3 bg-theme-color4 mt-4 py-2 rounded hover:brightness-90"
                     type="submit">Send</button>
             </form>
 
