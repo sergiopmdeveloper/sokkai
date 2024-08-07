@@ -1,5 +1,6 @@
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
+from django.db import connection
 
 from matches.constants import MatchFields
 from matches.models import Match
@@ -26,11 +27,17 @@ class Command(BaseCommand):
         self.stdout.write("Extracting columns...")
         self._extract_columns()
 
-        self.stdout.write("Formatting columns...")
-        self._format_columns()
-
         self.stdout.write("Generating match instances...")
         self._generate_match_instances()
+
+        self.stdout.write("Saving match instances...")
+        self._save_match_instances()
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Successfully seeded {len(self._match_instances)} matches"
+            )
+        )
 
     def _download_match_data(self) -> None:
         """
@@ -54,15 +61,6 @@ class Command(BaseCommand):
 
         self._match_df = self._match_df[MatchFields.field_list()]
 
-    def _format_columns(self) -> None:
-        """
-        Formats the columns of the match DataFrame
-        """
-
-        self._match_df[MatchFields.SEASON] = self._match_df[MatchFields.SEASON].astype(
-            str
-        )
-
     def _generate_match_instances(self) -> None:
         """
         Generates the match instances from the match DataFrame
@@ -71,3 +69,18 @@ class Command(BaseCommand):
         self._match_instances = [
             Match(**match) for match in self._match_df.to_dict("records")
         ]
+
+    def _save_match_instances(self) -> None:
+        """
+        Saves the match instances to the database
+        """
+
+        if Match.objects.exists():
+            Match.objects.all().delete()
+
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f"DELETE FROM sqlite_sequence WHERE name='{Match._meta.db_table}';"
+                )
+
+        Match.objects.bulk_create(self._match_instances)
