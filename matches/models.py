@@ -33,4 +33,5 @@ class Match(models.Model):
         Metadata options
         """
 
+        db_table = "matches"
         verbose_name_plural = "Matches"
