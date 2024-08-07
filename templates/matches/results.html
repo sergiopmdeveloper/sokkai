@@ -1,6 +1,28 @@
 {% extends 'page.html' %} {% block title %}Results | sokkai{% endblock title %} {% block body %}
 
 <main>
-  <h1 class="text-theme-color3">Results page</h1>
+  <h1 class="mb-5 text-2xl font-bold text-theme-color4">Match results</h1>
+
+  <div class="mb-5">
+    {% for match in matches %}
+    <h1 class="text-sm text-theme-color3">{{ match.team1 }}</h1>
+    {% endfor %}
+  </div>
+
+  <div>
+    <span class="text-theme-color4">
+      {% if matches.has_previous %}
+      <a href="?page=1">&laquo; First</a>
+      <a href="?page={{ matches.previous_page_number }}">Previous</a>
+      {% endif %}
+
+      <span> Page {{ matches.number }} of {{ matches.paginator.num_pages }}. </span>
+
+      {% if matches.has_next %}
+      <a href="?page={{ matches.next_page_number }}">Next</a>
+      <a href="?page={{ matches.paginator.num_pages }}">Last &raquo;</a>
+      {% endif %}
+    </span>
+  </div>
 </main>
 {%endblock body %}

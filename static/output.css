@@ -579,6 +579,10 @@ video {
   margin-right: 0.5rem;
 }
 
+.mb-5 {
+  margin-bottom: 1.25rem;
+}
+
 .mt-4 {
   margin-top: 1rem;
 }
@@ -693,6 +697,11 @@ video {
   padding-left: 0.5rem;
 }
 
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
 .text-4xl {
   font-size: 2.25rem;
   line-height: 2.5rem;
@@ -735,6 +744,11 @@ video {
 .text-theme-color3 {
   --tw-text-opacity: 1;
   color: rgb(255 236 209 / var(--tw-text-opacity));
+}
+
+.text-theme-color4 {
+  --tw-text-opacity: 1;
+  color: rgb(255 125 0 / var(--tw-text-opacity));
 }
 
 .outline-0 {
