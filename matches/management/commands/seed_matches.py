@@ -1,27 +1,32 @@
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 
+from matches.constants import MatchFields
+
 SOCCER_MATCHES_URL = (
     "https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv"
 )
 
 
 class Command(BaseCommand):
-    help = "Command for seeding the matches table in the database"
+    help = "Command for seeding the table `matches` in the database"
 
-    _matches_df: pd.DataFrame
+    _match_df: pd.DataFrame
 
     def handle(self, *args, **options) -> None:
         """
         Executes the command
         """
 
-        self.stdout.write("Downloading matches data...")
-        self._download_matches_data()
+        self.stdout.write("Downloading match data...")
+        self._download_match_data()
 
-    def _download_matches_data(self) -> None:
+        self.stdout.write("Extracting columns...")
+        self._extract_columns()
+
+    def _download_match_data(self) -> None:
         """
-        Downloads the matches data from the URL
+        Downloads the match data from the URL
 
         Raises
         ------
@@ -30,6 +35,13 @@ class Command(BaseCommand):
         """
 
         try:
-            self._matches_df = pd.read_csv(SOCCER_MATCHES_URL)
+            self._match_df = pd.read_csv(SOCCER_MATCHES_URL)
         except Exception:
             raise CommandError("Error downloading matches data")
+
+    def _extract_columns(self) -> None:
+        """
+        Extracts the columns from the match DataFrame
+        """
+
+        self._match_df = self._match_df[MatchFields.field_list()]
