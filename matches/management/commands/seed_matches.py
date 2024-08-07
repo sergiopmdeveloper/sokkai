@@ -1,9 +1,14 @@
+import os
+
 import pandas as pd
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
+from dotenv import load_dotenv
 
 from matches.constants import MatchFields
 from matches.models import Match
+
+load_dotenv()
 
 SOCCER_MATCHES_URL = (
     "https://projects.fivethirtyeight.com/soccer-api/club/spi_matches.csv"
@@ -78,9 +83,10 @@ class Command(BaseCommand):
         if Match.objects.exists():
             Match.objects.all().delete()
 
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    f"DELETE FROM sqlite_sequence WHERE name='{Match._meta.db_table}';"
-                )
+            if os.getenv("ENVIROMENT", "dev") not in ["test"]:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f"DELETE FROM sqlite_sequence WHERE name='{Match._meta.db_table}';"
+                    )
 
         Match.objects.bulk_create(self._match_instances)
