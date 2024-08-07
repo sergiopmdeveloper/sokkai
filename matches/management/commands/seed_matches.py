@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
