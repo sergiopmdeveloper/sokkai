@@ -3,9 +3,21 @@
 <main>
   <h1 class="mb-5 text-2xl font-bold text-theme-color3">Match results</h1>
 
-  <div class="mb-5">
+  <div class="mb-5 flex flex-col gap-2">
     {% for match in matches %}
-    <h1 class="text-sm text-theme-color3">{{ match.team1 }}</h1>
+    <div class="flex h-8 w-full items-center justify-between rounded bg-theme-color2 px-2">
+      <div class="flex gap-2">
+        <p class="text-theme-color3">{{ match.team1 }}</p>
+        <p class="text-theme-color4">vs</p>
+        <p class="text-theme-color3">{{ match.team2 }}</p>
+      </div>
+
+      <div class="flex gap-2 font-bold">
+        <p class="text-theme-color3">{{ match.score1|floatformat:0 }}</p>
+        <p class="text-theme-color4">-</p>
+        <p class="text-theme-color3">{{ match.score2|floatformat:0 }}</p>
+      </div>
+    </div>
     {% endfor %}
   </div>
 
