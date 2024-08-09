@@ -1,60 +1,65 @@
-{% extends "page.html" %} {% block title %}Sign up | sokkai{% endblock title %} {% block body %}
+{# Sign up template #}
 
-<main>
-  <div class="flex h-screen w-screen items-center justify-center">
-    <div class="relative mx-2 w-[27.5rem] rounded bg-theme-color2 p-6">
-      <h1 class="text-4xl font-bold text-theme-color3">Sign up</h1>
+{% extends "page.html" %}
 
-      <form class="mt-6 flex flex-col gap-2" hx-post="{% url 'sign-up' %}" hx-target="#errors">
-        {% csrf_token %}
+{% block title %}Sign up | sokkai{% endblock title %}
 
-        <div class="flex flex-col gap-1">
-          <label class="text-lg text-theme-color3" for="username">Username</label>
+{% block body %}
+  <main>
+    <div class="flex h-screen w-screen items-center justify-center">
+      <div class="relative mx-2 w-[27.5rem] rounded bg-theme-color2 p-6">
+        <h1 class="text-4xl font-bold text-theme-color3">Sign up</h1>
 
-          <input
-            class="h-8 w-full rounded border-2 border-transparent pl-2 text-sm text-theme-color1 outline-0 focus:border-theme-color4"
-            name="username"
-            id="username"
-            autocomplete="username"
-            placeholder="Username..."
-          />
-        </div>
+        <form class="mt-6 flex flex-col gap-2" hx-post="{% url 'sign-up' %}" hx-target="#errors">
+          {% csrf_token %}
 
-        <div class="flex flex-col gap-1">
-          <label class="text-lg text-theme-color3" for="email">Email</label>
+          <div class="flex flex-col gap-1">
+            <label class="text-lg text-theme-color3" for="username">Username</label>
 
-          <input
-            class="h-8 w-full rounded border-2 border-transparent pl-2 text-sm text-theme-color1 outline-0 focus:border-theme-color4"
-            name="email"
-            id="email"
-            autocomplete="email"
-            placeholder="Email..."
-          />
-        </div>
+            <input
+              class="h-8 w-full rounded border-2 border-transparent pl-2 text-sm text-theme-color1 outline-0 focus:border-theme-color4"
+              name="username"
+              id="username"
+              autocomplete="username"
+              placeholder="Username..."
+            />
+          </div>
 
-        <div class="flex flex-col gap-1">
-          <label class="text-lg text-theme-color3" for="password">Password</label>
+          <div class="flex flex-col gap-1">
+            <label class="text-lg text-theme-color3" for="email">Email</label>
 
-          <input
-            class="h-8 w-full rounded border-2 border-transparent pl-2 text-sm text-theme-color1 outline-0 focus:border-theme-color4"
-            type="password"
-            name="password"
-            id="password"
-            autocomplete="current-password"
-            placeholder="Password..."
-          />
-        </div>
+            <input
+              class="h-8 w-full rounded border-2 border-transparent pl-2 text-sm text-theme-color1 outline-0 focus:border-theme-color4"
+              name="email"
+              id="email"
+              autocomplete="email"
+              placeholder="Email..."
+            />
+          </div>
 
-        <div id="errors"></div>
+          <div class="flex flex-col gap-1">
+            <label class="text-lg text-theme-color3" for="password">Password</label>
 
-        <button
-          class="mt-4 rounded bg-theme-color4 py-2 text-theme-color3 hover:brightness-90"
-          type="submit"
-        >
-          Send
-        </button>
-      </form>
+            <input
+              class="h-8 w-full rounded border-2 border-transparent pl-2 text-sm text-theme-color1 outline-0 focus:border-theme-color4"
+              type="password"
+              name="password"
+              id="password"
+              autocomplete="current-password"
+              placeholder="Password..."
+            />
+          </div>
+
+          <div id="errors"></div>
+
+          <button
+            class="mt-4 rounded bg-theme-color4 py-2 text-theme-color3 hover:brightness-90"
+            type="submit"
+          >
+            Send
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
 {% endblock body %}

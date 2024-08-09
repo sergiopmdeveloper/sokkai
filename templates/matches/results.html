@@ -1,58 +1,13 @@
-{% extends 'page.html' %} {% block title %}Results | sokkai{% endblock title %} {% block body %}
+{# Results template #}
 
-<main>
-  <h1 class="mb-5 text-2xl font-bold text-theme-color3">Match results</h1>
+{% extends 'page.html' %}
 
-  <div class="mb-5 flex flex-col gap-2">
-    {% for match in matches %}
-    <div class="flex h-8 w-full items-center justify-between rounded bg-theme-color2 px-2">
-      <div class="flex gap-2">
-        <p class="text-theme-color3">{{ match.team1 }}</p>
-        <p class="text-theme-color4">vs</p>
-        <p class="text-theme-color3">{{ match.team2 }}</p>
-      </div>
+{% block title %}Results | sokkai{% endblock title %}
 
-      <div class="flex gap-2 font-bold">
-        <p class="text-theme-color3">{{ match.score1|floatformat:0 }}</p>
-        <p class="text-theme-color4">-</p>
-        <p class="text-theme-color3">{{ match.score2|floatformat:0 }}</p>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-
-  <div class="flex gap-5">
-    {% if matches.has_previous %}
-    <a
-      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
-      href="?page=1"
-      >&laquo; First</a
-    >
-
-    <a
-      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
-      href="?page={{ matches.previous_page_number }}"
-      >Previous</a
-    >
-    {% endif %}
-
-    <p class="rounded px-2 py-1 text-theme-color3">
-      Page {{ matches.number }} of {{ matches.paginator.num_pages }}
-    </p>
-
-    {% if matches.has_next %}
-    <a
-      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
-      href="?page={{ matches.next_page_number }}"
-      >Next</a
-    >
-
-    <a
-      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
-      href="?page={{ matches.paginator.num_pages }}"
-      >Last &raquo;</a
-    >
-    {% endif %}
-  </div>
-</main>
+{% block body %}
+  <main>
+    <h1 class="mb-5 text-2xl font-bold text-theme-color3">Match results</h1>
+    {% include 'matches/components/match-results.html' with matches=matches %}
+    {% include 'matches/components/pagination.html' with matches=matches %}
+  </main>
 {%endblock body %}

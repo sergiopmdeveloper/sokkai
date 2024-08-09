@@ -1,8 +1,13 @@
-{% extends "page.html" %} {% block title %}Home page | sokkai{% endblock title %} {% block body %}
+{# Home template #}
 
-<main>
-  <button class="rounded bg-red-300 px-1.5 py-1 text-red-700" hx-get="{% url 'sign-out' %}">
-    Sign out
-  </button>
-</main>
+{% extends "page.html" %}
+
+{% block title %}Home page | sokkai{% endblock title %}
+
+{% block body %}
+  <main>
+    <button class="rounded bg-red-300 px-1.5 py-1 text-red-700" hx-get="{% url 'sign-out' %}">
+      Sign out
+    </button>
+  </main>
 {% endblock body %}

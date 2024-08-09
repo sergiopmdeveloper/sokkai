@@ -1,0 +1,38 @@
+{# Pagination template #}
+
+<div class="flex gap-5">
+  {% if matches.has_previous %}
+    <a
+      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+      href="?page=1"
+    >
+      &laquo; First
+    </a>
+    <a
+      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+      href="?page={{ matches.previous_page_number }}"
+    >
+      Previous
+    </a>
+  {% endif %}
+
+  <p class="rounded px-2 py-1 text-theme-color3">
+    Page {{ matches.number }} of {{ matches.paginator.num_pages }}
+  </p>
+
+  {% if matches.has_next %}
+    <a
+      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+      href="?page={{ matches.next_page_number }}"
+    >
+      Next
+    </a>
+
+    <a
+      class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+      href="?page={{ matches.paginator.num_pages }}"
+    >
+      Last &raquo;
+    </a>
+  {% endif %}
+</div>
