@@ -39,7 +39,7 @@
     {% endfor %}
   </div>
 
-  <div class="flex gap-5">
+  <div class="flex flex-wrap gap-5">
     {% if matches.has_previous %}
       <a
         class="cursor-pointer rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
@@ -54,6 +54,19 @@
         hx-get="?page={{ matches.previous_page_number }}"
         hx-target="#match-results"
         hx-swap="outerHTML"
+      >
+        Previous
+      </a>
+    {% endif %}
+
+    {% if not matches.has_previous %}
+      <a
+        class="cursor-not-allowed rounded bg-theme-color4 px-2 py-1 text-theme-color3 opacity-30"
+      >
+        &laquo; First
+      </a>
+      <a
+        class="cursor-not-allowed rounded bg-theme-color4 px-2 py-1 text-theme-color3 opacity-30"
       >
         Previous
       </a>
@@ -78,6 +91,20 @@
         hx-get="?page={{ matches.paginator.num_pages }}"
         hx-target="#match-results"
         hx-swap="outerHTML"
+      >
+        Last &raquo;
+      </a>
+    {% endif %}
+
+    {% if not matches.has_next %}
+      <a
+        class="cursor-not-allowed rounded bg-theme-color4 px-2 py-1 text-theme-color3 opacity-30"
+      >
+        Next
+      </a>
+
+      <a
+        class="cursor-not-allowed rounded bg-theme-color4 px-2 py-1 text-theme-color3 opacity-30"
       >
         Last &raquo;
       </a>
