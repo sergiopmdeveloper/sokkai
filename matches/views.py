@@ -29,6 +29,11 @@ def match_results(request: HttpRequest) -> HttpResponse:
 
     match_results = paginator.get_page(page)
 
+    if request.htmx:
+        return render(
+            request, "matches/components/match-results.html", {"matches": match_results}
+        )
+
     return render(request, "matches/results.html", {"matches": match_results})
 
 

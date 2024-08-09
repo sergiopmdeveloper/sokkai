@@ -1,19 +1,66 @@
 {# Match results template #}
 
-<div class="mb-5 flex flex-col gap-2" id="match-results">
-  {% for match in matches %}
-    <div class="flex h-8 w-full items-center justify-between rounded bg-theme-color2 px-2">
-      <div class="flex gap-2">
-        <p class="text-theme-color3">{{ match.team1 }}</p>
-        <p class="text-theme-color4">vs</p>
-        <p class="text-theme-color3">{{ match.team2 }}</p>
-      </div>
+<div id="match-results">
+  <div class="mb-5 flex flex-col gap-2">
+    {% for match in matches %}
+      <div class="flex h-8 w-full items-center justify-between rounded bg-theme-color2 px-2">
+        <div class="flex gap-2">
+          <p class="text-theme-color3">{{ match.team1 }}</p>
+          <p class="text-theme-color4">vs</p>
+          <p class="text-theme-color3">{{ match.team2 }}</p>
+        </div>
 
-      <div class="flex gap-2 font-bold">
-        <p class="text-theme-color3">{{ match.score1|floatformat:0 }}</p>
-        <p class="text-theme-color4">-</p>
-        <p class="text-theme-color3">{{ match.score2|floatformat:0 }}</p>
+        <div class="flex gap-2 font-bold">
+          <p class="text-theme-color3">{{ match.score1|floatformat:0 }}</p>
+          <p class="text-theme-color4">-</p>
+          <p class="text-theme-color3">{{ match.score2|floatformat:0 }}</p>
+        </div>
       </div>
-    </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
+
+  <div class="flex gap-5">
+    {% if matches.has_previous %}
+      <a
+        class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+        hx-get="?page=1"
+        hx-target="#match-results"
+        hx-swap="outerHTML"
+      >
+        &laquo; First
+      </a>
+      <a
+        class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+        hx-get="?page={{ matches.previous_page_number }}"
+        hx-target="#match-results"
+        hx-swap="outerHTML"
+      >
+        Previous
+      </a>
+    {% endif %}
+
+    <p class="rounded px-2 py-1 text-theme-color3">
+      Page {{ matches.number }} of {{ matches.paginator.num_pages }}
+    </p>
+
+    {% if matches.has_next %}
+      <a
+        class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+        hx-get="?page={{ matches.next_page_number }}"
+        hx-target="#match-results"
+        hx-swap="outerHTML"
+      >
+        Next
+      </a>
+
+      <a
+        class="rounded bg-theme-color4 px-2 py-1 text-theme-color3 hover:brightness-90"
+        hx-get="?page={{ matches.paginator.num_pages }}"
+        hx-target="#match-results"
+        hx-swap="outerHTML"
+      >
+        Last &raquo;
+      </a>
+    {% endif %}
+  </div>
 </div>
