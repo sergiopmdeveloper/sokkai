@@ -5,3 +5,21 @@
 body {
   @apply bg-theme-color1;
 }
+
+::-webkit-scrollbar {
+  @apply h-1;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-theme-color1;
+  @apply rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-theme-color4;
+  @apply rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
