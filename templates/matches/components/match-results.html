@@ -46,6 +46,10 @@
         hx-get="?page=1"
         hx-target="#match-results"
         hx-swap="outerHTML"
+        hx-vals="js:{
+                 season: document.getElementById('season-dropdown').innerText.includes('Select') ? '' : document.getElementById('season-dropdown').innerText,
+                 league: document.getElementById('league-dropdown').innerText.includes('Select') ? '' : document.getElementById('league-dropdown').innerText
+                 }"
       >
         &laquo; First
       </a>
@@ -54,6 +58,10 @@
         hx-get="?page={{ matches.previous_page_number }}"
         hx-target="#match-results"
         hx-swap="outerHTML"
+        hx-vals="js:{
+                 season: document.getElementById('season-dropdown').innerText.includes('Select') ? '' : document.getElementById('season-dropdown').innerText,
+                 league: document.getElementById('league-dropdown').innerText.includes('Select') ? '' : document.getElementById('league-dropdown').innerText
+                 }"
       >
         Previous
       </a>
@@ -82,6 +90,10 @@
         hx-get="?page={{ matches.next_page_number }}"
         hx-target="#match-results"
         hx-swap="outerHTML"
+        hx-vals="js:{
+                 season: document.getElementById('season-dropdown').innerText.includes('Select') ? '' : document.getElementById('season-dropdown').innerText,
+                 league: document.getElementById('league-dropdown').innerText.includes('Select') ? '' : document.getElementById('league-dropdown').innerText
+                 }"
       >
         Next
       </a>
@@ -91,6 +103,10 @@
         hx-get="?page={{ matches.paginator.num_pages }}"
         hx-target="#match-results"
         hx-swap="outerHTML"
+        hx-vals="js:{
+                 season: document.getElementById('season-dropdown').innerText.includes('Select') ? '' : document.getElementById('season-dropdown').innerText,
+                 league: document.getElementById('league-dropdown').innerText.includes('Select') ? '' : document.getElementById('league-dropdown').innerText
+                 }"
       >
         Last &raquo;
       </a>

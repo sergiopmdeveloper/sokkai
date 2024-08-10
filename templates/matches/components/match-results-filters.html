@@ -10,7 +10,11 @@
       id="season-dropdown"
       @click="isOpen = !isOpen"
     >
-      Select a season &dArr;
+      {% if season %}
+        {{ season }}
+      {% else %}
+        Select a season &dArr;
+      {% endif %}
     </button>
 
     <div
@@ -46,7 +50,11 @@
       id="league-dropdown"
       @click="isOpen = !isOpen"
     >
-      Select a league &dArr;
+      {% if league %}
+        {{ league }}
+      {% else %}
+        Select a league &dArr;
+      {% endif %}
     </button>
 
     <div
@@ -72,5 +80,15 @@
     </div>
   </div>
 
-  <button class="cursor-pointer bg-theme-color4 text-theme-color3 px-2 py-1 hover:brightness-90">Filter &#128270;</button>
+  <button
+    class="cursor-pointer bg-theme-color4 text-theme-color3 px-2 py-1 hover:brightness-90"
+    hx-get="{% url 'match-results' %}"
+    hx-target="#match-results"
+    hx-vals="js:{
+             season: document.getElementById('season-dropdown').innerText.includes('Select') ? '' : document.getElementById('season-dropdown').innerText,
+             league: document.getElementById('league-dropdown').innerText.includes('Select') ? '' : document.getElementById('league-dropdown').innerText
+             }"
+  >
+    Filter &#128270;
+  </button>
 </div>

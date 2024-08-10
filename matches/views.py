@@ -24,6 +24,15 @@ def match_results(request: HttpRequest) -> HttpResponse:
 
     match_results = Match.objects.filter(score1__isnull=False, score2__isnull=False)
 
+    season = request.GET.get("season")
+    league = request.GET.get("league")
+
+    if season:
+        match_results = match_results.filter(season=season)
+
+    if league:
+        match_results = match_results.filter(league=league)
+
     paginator = Paginator(match_results, 20)
     page = request.GET.get("page", 1)
 
@@ -35,13 +44,25 @@ def match_results(request: HttpRequest) -> HttpResponse:
         return render(
             request,
             "matches/components/match-results.html",
-            {"matches": match_results, "seasons": seasons, "leagues": leagues},
+            {
+                "matches": match_results,
+                "seasons": seasons,
+                "leagues": leagues,
+                "season": season,
+                "league": league,
+            },
         )
 
     return render(
         request,
         "matches/results.html",
-        {"matches": match_results, "seasons": seasons, "leagues": leagues},
+        {
+            "matches": match_results,
+            "seasons": seasons,
+            "leagues": leagues,
+            "season": season,
+            "league": league,
+        },
     )
 
 
