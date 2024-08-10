@@ -28,13 +28,21 @@ def match_results(request: HttpRequest) -> HttpResponse:
     page = request.GET.get("page", 1)
 
     match_results = paginator.get_page(page)
+    seasons = Match.objects.values_list("season", flat=True).distinct()
+    leagues = Match.objects.values_list("league", flat=True).distinct()
 
     if request.htmx:
         return render(
-            request, "matches/components/match-results.html", {"matches": match_results}
+            request,
+            "matches/components/match-results.html",
+            {"matches": match_results, "seasons": seasons, "leagues": leagues},
         )
 
-    return render(request, "matches/results.html", {"matches": match_results})
+    return render(
+        request,
+        "matches/results.html",
+        {"matches": match_results, "seasons": seasons, "leagues": leagues},
+    )
 
 
 def matches(_: HttpRequest) -> HttpResponseRedirect:

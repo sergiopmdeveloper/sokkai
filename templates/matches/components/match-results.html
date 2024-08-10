@@ -1,6 +1,8 @@
 {# Match results template #}
 
 <div id="match-results">
+  {% include 'matches/components/match-results-filters.html' with seasons=seasons leagues=leagues %}
+
   <div class="mb-5 flex flex-col gap-2">
     {% for match in matches %}
       <div class="flex h-8 w-full items-center bg-theme-color2">

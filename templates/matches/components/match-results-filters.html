@@ -1,0 +1,76 @@
+{# Match results filters #}
+
+<div class="flex flex-wrap gap-2 mb-5">
+  <div
+    class="relative"
+    x-data="{ isOpen: false }"
+  >
+    <button
+      class="cursor-pointer w-36 bg-theme-color2 text-theme-color3 px-2 py-1 truncate hover:brightness-90"
+      id="season-dropdown"
+      @click="isOpen = !isOpen"
+    >
+      Select a season &dArr;
+    </button>
+
+    <div
+      class="h-48 absolute w-full overflow-y-scroll"
+      x-show="isOpen"
+    >
+      <p
+        class="cursor-pointer bg-theme-color2 text-theme-color3 pl-2 py-1 hover:brightness-90"
+        @click="isOpen = false"
+        onClick="document.getElementById('season-dropdown').innerText = 'Select a season &dArr;'"
+      >
+        Reset
+      </p>
+
+      {% for season in seasons %}
+        <p
+          class="cursor-pointer bg-theme-color2 text-theme-color3 pl-2 py-1 hover:brightness-90"
+          @click="isOpen = false"
+          onClick="document.getElementById('season-dropdown').innerText = event.target.innerText;"
+        >
+          {{ season }}
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div
+    class="relative"
+    x-data="{ isOpen: false }"
+  >
+    <button
+      class="cursor-pointer w-36 bg-theme-color2 text-theme-color3 px-2 py-1 truncate hover:brightness-90"
+      id="league-dropdown"
+      @click="isOpen = !isOpen"
+    >
+      Select a league &dArr;
+    </button>
+
+    <div
+      class="h-48 absolute w-full overflow-y-scroll"
+      x-show="isOpen"
+    >
+      <p
+        class="cursor-pointer bg-theme-color2 text-theme-color3 pl-2 py-1 hover:brightness-90"
+        @click="isOpen = false"
+        onClick="document.getElementById('league-dropdown').innerText = 'Select a league &dArr;'"
+      >
+        Reset
+      </p>
+      {% for league in leagues %}
+        <p
+          class="cursor-pointer bg-theme-color2 text-theme-color3 pl-2 py-1 hover:brightness-90"
+          @click="isOpen = false"
+          onClick="document.getElementById('league-dropdown').innerText = event.target.innerText;"
+        >
+          {{ league }}
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <button class="cursor-pointer bg-theme-color4 text-theme-color3 px-2 py-1 hover:brightness-90">Filter &#128270;</button>
+</div>
